@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -18,12 +17,16 @@ const Index = () => {
 
     checkAuth();
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthenticated(!!session);
     });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const handleGetStarted = () => {
+  const handleGetStarted = async () => {
     if (isAuthenticated) {
       navigate("/create-profile");
     } else {
@@ -71,7 +74,7 @@ const Index = () => {
               <Button
                 onClick={handleGetStarted}
                 size="lg"
-                className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105"
+                className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
               >
                 {isAuthenticated ? "Create Profile" : "Get Started"}
               </Button>
@@ -87,7 +90,7 @@ const Index = () => {
               onClick={() => navigate("/gallery")}
               variant="outline"
               size="lg"
-              className="px-8 py-3 border-2 border-gray-200 rounded-lg hover:border-primary/50 transition-colors"
+              className="px-8 py-3 border-2 border-gray-200 rounded-lg hover:border-primary/50 transition-colors cursor-pointer"
             >
               Browse Photos
             </Button>

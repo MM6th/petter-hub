@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -121,7 +120,7 @@ const CreateProfile = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex justify-center mb-6">
-              <div className="relative group">
+              <label className="relative group cursor-pointer">
                 <Avatar className="w-24 h-24 ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
                   <AvatarImage src={avatarUrl || ""} />
                   <AvatarFallback>
@@ -137,7 +136,7 @@ const CreateProfile = () => {
                 <div className="absolute inset-0 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm transition-opacity">
                   Change Photo
                 </div>
-              </div>
+              </label>
             </div>
 
             <div className="space-y-2">
