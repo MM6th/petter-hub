@@ -7,12 +7,14 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +27,17 @@ const Auth = () => {
           email,
           password,
         });
-        if (error) throw error;
+        
+        if (error) {
+          if (error.message.includes("Email not confirmed")) {
+            setShowEmailConfirmation(true);
+            toast.error("Please check your email to confirm your account before signing in.");
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
+        
         toast.success("Successfully signed in!");
         navigate("/");
       } else {
@@ -33,10 +45,14 @@ const Auth = () => {
           email,
           password,
         });
-        if (error) throw error;
-        toast.success(
-          "Successfully signed up! Please check your email for confirmation."
-        );
+        
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
+        
+        setShowEmailConfirmation(true);
+        toast.success("Successfully signed up! Please check your email for confirmation.");
       }
     } catch (error: any) {
       toast.error(error.message || "An error occurred during authentication");
@@ -63,6 +79,14 @@ const Auth = () => {
                 : "Join our community of pet lovers"}
             </p>
           </div>
+
+          {showEmailConfirmation && (
+            <Alert className="mb-6">
+              <AlertDescription>
+                Please check your email for a confirmation link. You need to confirm your email before signing in.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -101,7 +125,10 @@ const Auth = () => {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setShowEmailConfirmation(false);
+              }}
               className="text-sm text-primary hover:underline"
               disabled={loading}
             >
