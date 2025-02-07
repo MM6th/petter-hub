@@ -1,12 +1,35 @@
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
+    };
+
+    checkAuth();
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+  }, []);
+
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      navigate("/create-profile");
+    } else {
+      navigate("/auth");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
@@ -46,11 +69,11 @@ const Index = () => {
               className="relative"
             >
               <Button
-                onClick={() => navigate("/auth")}
+                onClick={handleGetStarted}
                 size="lg"
                 className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105"
               >
-                Get Started
+                {isAuthenticated ? "Create Profile" : "Get Started"}
               </Button>
               <motion.div
                 animate={{

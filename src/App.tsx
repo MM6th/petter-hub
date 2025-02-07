@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Gallery from "./pages/Gallery";
+import CreateProfile from "./pages/CreateProfile";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/create-profile" element={<CreateProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
