@@ -53,9 +53,13 @@ const CreateProfile = () => {
 
         const { error: uploadError, data } = await supabase.storage
           .from('avatars')
-          .upload(fileName, avatarFile);
+          .upload(fileName, avatarFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
         if (uploadError) {
+          console.error('Upload error:', uploadError);
           toast.error("Error uploading avatar");
           return;
         }
@@ -63,7 +67,7 @@ const CreateProfile = () => {
         if (data) {
           const { data: { publicUrl } } = supabase.storage
             .from('avatars')
-            .getPublicUrl(fileName);
+            .getPublicUrl(data.path);
           
           finalAvatarUrl = publicUrl;
         }
@@ -82,6 +86,7 @@ const CreateProfile = () => {
         });
 
       if (error) {
+        console.error('Profile update error:', error);
         if (error.code === '23505') {
           toast.error("Username already taken. Please choose another.");
         } else {
@@ -93,6 +98,7 @@ const CreateProfile = () => {
       toast.success("Profile created successfully!");
       navigate("/");
     } catch (error: any) {
+      console.error('Submission error:', error);
       toast.error(error.message);
     } finally {
       setLoading(false);
@@ -115,8 +121,8 @@ const CreateProfile = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex justify-center mb-6">
-              <div className="relative">
-                <Avatar className="w-24 h-24">
+              <div className="relative group">
+                <Avatar className="w-24 h-24 ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
                   <AvatarImage src={avatarUrl || ""} />
                   <AvatarFallback>
                     {username ? username[0].toUpperCase() : "?"}
@@ -128,6 +134,9 @@ const CreateProfile = () => {
                   onChange={handleImageUpload}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
+                <div className="absolute inset-0 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm transition-opacity">
+                  Change Photo
+                </div>
               </div>
             </div>
 
