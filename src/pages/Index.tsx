@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -8,17 +9,40 @@ const Index = () => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasProfile, setHasProfile] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setIsAuthenticated(!!user);
+
+      if (user) {
+        // Check if user has a profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+        
+        setHasProfile(!!profile);
+      }
     };
 
-    checkAuth();
+    checkAuthAndProfile();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setIsAuthenticated(!!session);
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', session.user.id)
+          .single();
+        
+        setHasProfile(!!profile);
+      } else {
+        setHasProfile(false);
+      }
     });
 
     return () => {
@@ -26,11 +50,15 @@ const Index = () => {
     };
   }, []);
 
-  const handleGetStarted = async () => {
+  const handleGetStarted = () => {
     if (isAuthenticated) {
-      navigate("/create-profile");
+      if (hasProfile) {
+        navigate("/profile"); // Navigate to profile page if user has a profile
+      } else {
+        navigate("/create-profile"); // Navigate to create profile if they don't
+      }
     } else {
-      navigate("/auth");
+      navigate("/auth"); // Navigate to auth if not authenticated
     }
   };
 
@@ -76,7 +104,7 @@ const Index = () => {
                 size="lg"
                 className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
               >
-                {isAuthenticated ? "Create Profile" : "Get Started"}
+                {isAuthenticated ? (hasProfile ? "View Profile" : "Create Profile") : "Get Started"}
               </Button>
               <motion.div
                 animate={{
