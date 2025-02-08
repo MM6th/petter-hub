@@ -65,6 +65,13 @@ const PetPostForm = () => {
 
     setIsLoading(true);
     try {
+      // Get current user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("No authenticated user found");
+      }
+
       // Upload image to Supabase Storage
       const fileExt = selectedImage.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
@@ -88,6 +95,7 @@ const PetPostForm = () => {
           pet_age: values.petAge || null,
           photo_url: publicUrl,
           caption: values.caption,
+          profile_id: user.id
         });
 
       if (postError) throw postError;
