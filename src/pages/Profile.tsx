@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PetPostForm from "@/components/PetPostForm";
+import { useQuery } from "@tanstack/react-query";
 
 type ProfileData = {
   username: string;
@@ -12,6 +13,16 @@ type ProfileData = {
   bio: string;
   location: string;
   avatar_url: string;
+};
+
+type PetPost = {
+  id: string;
+  pet_name: string;
+  pet_breed: string | null;
+  pet_age: string | null;
+  photo_url: string;
+  caption: string;
+  created_at: string;
 };
 
 const Profile = () => {
@@ -46,6 +57,24 @@ const Profile = () => {
 
     fetchProfile();
   }, [navigate]);
+
+  const { data: userPosts } = useQuery({
+    queryKey: ['user-pet-posts'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('pet_posts')
+        .select('*')
+        .eq('profile_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as PetPost[];
+    },
+    enabled: !loading,
+  });
 
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
@@ -85,6 +114,38 @@ const Profile = () => {
         </Card>
         
         <PetPostForm />
+
+        {userPosts && userPosts.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-gray-900">Your Pet Posts</h2>
+            <div className="grid gap-6">
+              {userPosts.map((post) => (
+                <Card key={post.id} className="overflow-hidden">
+                  <div className="aspect-video relative">
+                    <img
+                      src={post.photo_url}
+                      alt={post.pet_name}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{post.pet_name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {(post.pet_breed || post.pet_age) && (
+                      <div className="text-sm text-gray-600">
+                        {post.pet_breed && <span>Breed: {post.pet_breed}</span>}
+                        {post.pet_breed && post.pet_age && <span> • </span>}
+                        {post.pet_age && <span>Age: {post.pet_age}</span>}
+                      </div>
+                    )}
+                    <p className="text-gray-700">{post.caption}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
