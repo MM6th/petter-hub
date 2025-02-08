@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -17,7 +16,6 @@ const Index = () => {
       setIsAuthenticated(!!user);
 
       if (user) {
-        // Check if user has a profile
         const { data: profile } = await supabase
           .from('profiles')
           .select('id')
@@ -102,7 +100,7 @@ const Index = () => {
               <Button
                 onClick={handleGetStarted}
                 size="lg"
-                className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 hover:cursor-pointer"
               >
                 {isAuthenticated ? (hasProfile ? "View Profile" : "Create Profile") : "Get Started"}
               </Button>
