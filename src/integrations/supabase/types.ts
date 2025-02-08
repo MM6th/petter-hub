@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      pet_posts: {
+        Row: {
+          caption: string
+          created_at: string
+          id: string
+          pet_age: string | null
+          pet_breed: string | null
+          pet_name: string
+          photo_url: string
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          caption: string
+          created_at?: string
+          id?: string
+          pet_age?: string | null
+          pet_breed?: string | null
+          pet_name: string
+          photo_url: string
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          id?: string
+          pet_age?: string | null
+          pet_breed?: string | null
+          pet_name?: string
+          photo_url?: string
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
