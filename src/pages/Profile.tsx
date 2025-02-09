@@ -4,8 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import PetPostForm from "@/components/PetPostForm";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 type ProfileData = {
   username: string;
@@ -29,6 +32,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -75,6 +80,33 @@ const Profile = () => {
     },
     enabled: !loading,
   });
+
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const { error } = await supabase
+        .from('pet_posts')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      // Invalidate and refetch queries
+      queryClient.invalidateQueries({ queryKey: ['user-pet-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['pet-posts'] }); // This will update the gallery
+
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete post",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
@@ -127,6 +159,14 @@ const Profile = () => {
                       alt={post.pet_name}
                       className="object-cover w-full h-full"
                     />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => handleDeletePost(post.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                   <CardHeader>
                     <CardTitle className="text-lg">{post.pet_name}</CardTitle>
