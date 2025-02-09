@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -26,6 +25,9 @@ const Index = () => {
           .single();
         
         setHasProfile(!!profile);
+        if (!!profile) {
+          navigate('/profile');
+        }
       }
     };
 
@@ -41,6 +43,9 @@ const Index = () => {
           .single();
         
         setHasProfile(!!profile);
+        if (!!profile) {
+          navigate('/profile');
+        }
       } else {
         setHasProfile(false);
       }
@@ -49,7 +54,7 @@ const Index = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const handleGetStarted = async () => {
     if (isAuthenticated) {
@@ -122,7 +127,7 @@ const Index = () => {
                 size="lg"
                 className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 hover:cursor-pointer"
               >
-                {isAuthenticated ? (hasProfile ? "View Profile" : "Create Profile") : "Get Started"}
+                {isAuthenticated ? "View Profile" : "Get Started"}
               </Button>
               <motion.div
                 animate={{
@@ -140,16 +145,6 @@ const Index = () => {
             >
               Browse Photos
             </Button>
-            {isAuthenticated && (
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="lg"
-                className="px-8 py-3 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors cursor-pointer"
-              >
-                Logout
-              </Button>
-            )}
           </motion.div>
         </motion.div>
 

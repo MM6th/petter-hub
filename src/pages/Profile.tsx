@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -108,6 +107,23 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Success",
+        description: "You have been logged out successfully",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
@@ -119,6 +135,25 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white py-12 px-4">
       <div className="max-w-2xl mx-auto space-y-6">
+        <div className="flex justify-end gap-4 mb-6">
+          <Button
+            onClick={() => navigate("/gallery")}
+            variant="outline"
+            size="lg"
+            className="px-8 py-3 border-2 border-gray-200 rounded-lg hover:border-primary/50 transition-colors cursor-pointer"
+          >
+            Browse Photos
+          </Button>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            size="lg"
+            className="px-8 py-3 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors cursor-pointer"
+          >
+            Logout
+          </Button>
+        </div>
+
         <Card>
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
