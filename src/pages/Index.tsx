@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -58,30 +59,9 @@ const Index = () => {
 
   const handleGetStarted = async () => {
     if (isAuthenticated) {
-      if (hasProfile) {
-        navigate("/profile");
-      } else {
-        navigate("/create-profile");
-      }
+      navigate("/create-profile");
     } else {
       navigate("/auth");
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Success",
-        description: "You have been logged out successfully",
-      });
-      navigate("/");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to log out",
-        variant: "destructive",
-      });
     }
   };
 
@@ -127,7 +107,7 @@ const Index = () => {
                 size="lg"
                 className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 hover:cursor-pointer"
               >
-                {isAuthenticated ? "View Profile" : "Get Started"}
+                {isAuthenticated ? "Create Profile" : "Get Started"}
               </Button>
               <motion.div
                 animate={{
