@@ -1,11 +1,14 @@
+
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isHovered, setIsHovered] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
@@ -48,15 +51,32 @@ const Index = () => {
     };
   }, []);
 
-  const handleGetStarted = () => {
+  const handleGetStarted = async () => {
     if (isAuthenticated) {
       if (hasProfile) {
-        navigate("/profile"); // Navigate to profile page if user has a profile
+        navigate("/profile");
       } else {
-        navigate("/create-profile"); // Navigate to create profile if they don't
+        navigate("/create-profile");
       }
     } else {
-      navigate("/auth"); // Navigate to auth if not authenticated
+      navigate("/auth");
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Success",
+        description: "You have been logged out successfully",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out",
+        variant: "destructive",
+      });
     }
   };
 
@@ -90,7 +110,7 @@ const Index = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="mt-10 flex justify-center gap-4"
+            className="mt-10 flex justify-center gap-4 flex-wrap"
           >
             <div
               onMouseEnter={() => setIsHovered(true)}
@@ -120,6 +140,16 @@ const Index = () => {
             >
               Browse Photos
             </Button>
+            {isAuthenticated && (
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="lg"
+                className="px-8 py-3 border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors cursor-pointer"
+              >
+                Logout
+              </Button>
+            )}
           </motion.div>
         </motion.div>
 
