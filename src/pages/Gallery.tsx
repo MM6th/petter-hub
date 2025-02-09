@@ -1,10 +1,11 @@
+
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,6 +26,24 @@ type PetPost = {
 const Gallery = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -89,22 +108,35 @@ const Gallery = () => {
           <div className="flex justify-between h-16 items-center">
             <h1 className="text-xl font-semibold text-gray-900">Pet Gallery</h1>
             <div className="flex gap-4">
-              <Button
-                onClick={() => navigate("/profile")}
-                variant="outline"
-                size="sm"
-                className="border-2 border-gray-200 rounded-lg hover:border-primary/50 transition-colors cursor-pointer"
-              >
-                Go to Profile
-              </Button>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="sm"
-                className="border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors cursor-pointer"
-              >
-                Logout
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <Button
+                    onClick={() => navigate("/profile")}
+                    variant="outline"
+                    size="sm"
+                    className="border-2 border-gray-200 rounded-lg hover:border-primary/50 transition-colors cursor-pointer"
+                  >
+                    Go to Profile
+                  </Button>
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    size="sm"
+                    className="border-2 border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors cursor-pointer"
+                  >
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={() => navigate("/auth")}
+                  variant="outline"
+                  size="sm"
+                  className="border-2 border-gray-200 rounded-lg hover:border-primary/50 transition-colors cursor-pointer"
+                >
+                  Login
+                </Button>
+              )}
             </div>
           </div>
         </div>
