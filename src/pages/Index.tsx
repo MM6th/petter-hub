@@ -97,26 +97,13 @@ const Index = () => {
             transition={{ delay: 0.6 }}
             className="mt-10 flex justify-center gap-4 flex-wrap"
           >
-            <div
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              className="relative"
+            <Button
+              onClick={handleGetStarted}
+              size="lg"
+              className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
             >
-              <Button
-                onClick={handleGetStarted}
-                size="lg"
-                className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
-              >
-                {isAuthenticated ? "Create Profile" : "Get Started"}
-              </Button>
-              <motion.div
-                animate={{
-                  scale: isHovered ? 1.1 : 1,
-                  opacity: isHovered ? 0.15 : 0,
-                }}
-                className="absolute inset-0 bg-primary rounded-lg filter blur-xl"
-              />
-            </div>
+              {isAuthenticated ? "Create Profile" : "Get Started"}
+            </Button>
             <Button
               onClick={() => navigate("/gallery")}
               variant="outline"
