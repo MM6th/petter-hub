@@ -1,15 +1,12 @@
 
 import { motion } from "framer-motion";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Heart } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+import { PostCard } from "@/components/gallery/PostCard";
 
 type PetPost = {
   id: string;
@@ -48,8 +45,6 @@ const Gallery = () => {
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -130,57 +125,6 @@ const Gallery = () => {
 
       if (error) throw error;
       return data as PostComment[];
-    },
-  });
-
-  const toggleReaction = useMutation({
-    mutationFn: async (postId: string) => {
-      const existingReaction = reactions?.find(
-        r => r.post_id === postId && r.profile_id === userId
-      );
-
-      if (existingReaction) {
-        const { error } = await supabase
-          .from('post_reactions')
-          .delete()
-          .eq('id', existingReaction.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('post_reactions')
-          .insert({ post_id: postId, profile_id: userId });
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['post-reactions'] });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update reaction",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const addComment = useMutation({
-    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
-      const { error } = await supabase
-        .from('post_comments')
-        .insert({ post_id: postId, profile_id: userId, content });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['post-comments'] });
-      setNewComment({});
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to add comment",
-        variant: "destructive",
-      });
     },
   });
 
@@ -265,110 +209,14 @@ const Gallery = () => {
             <div className="flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {posts?.map((post) => (
-                  <Card key={post.id} className="overflow-hidden">
-                    <div className="aspect-square relative">
-                      <img
-                        src={post.photo_url}
-                        alt={post.pet_name}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                    <CardHeader className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={post.profiles.avatar_url || undefined} />
-                          <AvatarFallback>{post.profiles.username?.[0]?.toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium text-sm">{post.profiles.username}</span>
-                      </div>
-                      <CardTitle className="text-lg">{post.pet_name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {(post.pet_breed || post.pet_age) && (
-                        <div className="text-sm text-gray-600">
-                          {post.pet_breed && <span>Breed: {post.pet_breed}</span>}
-                          {post.pet_breed && post.pet_age && <span> • </span>}
-                          {post.pet_age && <span>Age: {post.pet_age}</span>}
-                        </div>
-                      )}
-                      <p className="text-gray-700">{post.caption}</p>
-                      
-                      {isAuthenticated && (
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-0 h-auto hover:bg-transparent"
-                            onClick={() => toggleReaction.mutate(post.id)}
-                          >
-                            <Heart
-                              className={`h-6 w-6 ${
-                                reactions?.some(
-                                  r => r.post_id === post.id && r.profile_id === userId
-                                )
-                                  ? "fill-red-500 text-red-500"
-                                  : "text-gray-500"
-                              }`}
-                            />
-                          </Button>
-                          <span className="text-sm text-gray-500">
-                            {reactions?.filter(r => r.post_id === post.id).length || 0}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="space-y-4 mt-4">
-                        <div className="space-y-2">
-                          {comments
-                            ?.filter(c => c.post_id === post.id)
-                            .map(comment => (
-                              <div key={comment.id} className="flex items-start gap-2">
-                                <Avatar className="h-6 w-6">
-                                  <AvatarImage src={comment.profiles.avatar_url || undefined} />
-                                  <AvatarFallback>
-                                    {comment.profiles.username?.[0]?.toUpperCase()}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                  <p className="text-sm">
-                                    <span className="font-medium">{comment.profiles.username}</span>{" "}
-                                    {comment.content}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-                        </div>
-
-                        {isAuthenticated && (
-                          <div className="flex gap-2">
-                            <Textarea
-                              placeholder="Add a comment..."
-                              value={newComment[post.id] || ""}
-                              onChange={e => setNewComment(prev => ({
-                                ...prev,
-                                [post.id]: e.target.value
-                              }))}
-                              className="min-h-0 h-9 py-2 resize-none"
-                            />
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                if (newComment[post.id]?.trim()) {
-                                  addComment.mutate({
-                                    postId: post.id,
-                                    content: newComment[post.id].trim()
-                                  });
-                                }
-                              }}
-                              className="shrink-0"
-                            >
-                              Post
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    reactions={reactions || []}
+                    comments={comments || []}
+                    userId={userId}
+                    isAuthenticated={isAuthenticated}
+                  />
                 ))}
               </div>
             </div>
