@@ -105,7 +105,7 @@ const Index = () => {
               <Button
                 onClick={handleGetStarted}
                 size="lg"
-                className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 hover:cursor-pointer"
+                className="relative px-8 py-3 bg-primary text-white rounded-lg transition-all duration-300 transform hover:scale-105 cursor-pointer"
               >
                 {isAuthenticated ? "Create Profile" : "Get Started"}
               </Button>
