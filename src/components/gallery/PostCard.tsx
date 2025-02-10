@@ -47,7 +47,7 @@ type PostCardProps = {
 export const PostCard = ({ post, reactions, comments, userId, isAuthenticated }: PostCardProps) => {
   return (
     <Card className="overflow-hidden">
-      <div className="w-full relative pt-[100%]">
+      <div className="relative h-0 pb-[100%]">
         <img
           src={post.photo_url}
           alt={post.pet_name}
