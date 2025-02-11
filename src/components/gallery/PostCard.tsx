@@ -47,11 +47,11 @@ type PostCardProps = {
 export const PostCard = ({ post, reactions, comments, userId, isAuthenticated }: PostCardProps) => {
   return (
     <Card className="overflow-hidden">
-      <div className="relative h-0 pb-[100%]">
+      <div className="relative w-full">
         <img
           src={post.photo_url}
           alt={post.pet_name}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full h-auto object-cover"
         />
       </div>
       <CardHeader className="space-y-1">
