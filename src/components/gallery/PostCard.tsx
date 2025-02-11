@@ -46,12 +46,12 @@ type PostCardProps = {
 
 export const PostCard = ({ post, reactions, comments, userId, isAuthenticated }: PostCardProps) => {
   return (
-    <Card className="overflow-hidden">
-      <div className="relative w-full">
+    <Card className="h-full flex flex-col overflow-hidden">
+      <div className="relative aspect-square w-full">
         <img
           src={post.photo_url}
           alt={post.pet_name}
-          className="w-full h-auto object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
         />
       </div>
       <CardHeader className="space-y-1">
@@ -62,9 +62,9 @@ export const PostCard = ({ post, reactions, comments, userId, isAuthenticated }:
           </Avatar>
           <span className="font-medium text-sm">{post.profiles.username}</span>
         </div>
-        <CardTitle className="text-lg">{post.pet_name}</CardTitle>
+        <CardTitle className="text-lg line-clamp-1">{post.pet_name}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex-1 flex flex-col space-y-4">
         {(post.pet_breed || post.pet_age) && (
           <div className="text-sm text-gray-600">
             {post.pet_breed && <span>Breed: {post.pet_breed}</span>}
@@ -72,21 +72,23 @@ export const PostCard = ({ post, reactions, comments, userId, isAuthenticated }:
             {post.pet_age && <span>Age: {post.pet_age}</span>}
           </div>
         )}
-        <p className="text-gray-700">{post.caption}</p>
+        <p className="text-gray-700 line-clamp-2">{post.caption}</p>
         
-        <PostReactions
-          postId={post.id}
-          userId={userId}
-          isAuthenticated={isAuthenticated}
-          reactions={reactions}
-        />
+        <div className="mt-auto space-y-4">
+          <PostReactions
+            postId={post.id}
+            userId={userId}
+            isAuthenticated={isAuthenticated}
+            reactions={reactions}
+          />
 
-        <CommentSection
-          postId={post.id}
-          userId={userId}
-          isAuthenticated={isAuthenticated}
-          comments={comments}
-        />
+          <CommentSection
+            postId={post.id}
+            userId={userId}
+            isAuthenticated={isAuthenticated}
+            comments={comments}
+          />
+        </div>
       </CardContent>
     </Card>
   );
