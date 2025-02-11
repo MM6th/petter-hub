@@ -46,8 +46,8 @@ type PostCardProps = {
 
 export const PostCard = ({ post, reactions, comments, userId, isAuthenticated }: PostCardProps) => {
   return (
-    <Card className="h-full flex flex-col overflow-hidden">
-      <div className="relative aspect-square w-full">
+    <Card className="min-h-[600px] flex flex-col overflow-hidden">
+      <div className="relative flex-[0_0_50%]">
         <img
           src={post.photo_url}
           alt={post.pet_name}
